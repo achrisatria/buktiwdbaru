@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>BCA – Transfer Berhasil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{font-family:'Plus Jakarta Sans',sans-serif;background:#b4b8bc;
+      display:flex;justify-content:center;min-height:100vh}
+
+    /* ── TOOLBAR ── */
+    .tbar{position:fixed;top:10px;right:10px;z-index:9999;display:flex;align-items:center;gap:7px;
+      background:#fff;border-radius:20px;padding:5px 12px;box-shadow:0 2px 10px rgba(0,0,0,.22);font-size:11px}
+    .tl{color:#444;font-weight:700}
+    .sw{width:36px;height:20px;border-radius:10px;background:#ccc;position:relative;cursor:pointer;
+      transition:background .25s;border:none;outline:none}
+    .sw.on{background:#0057A8}
+    .sw::after{content:'';width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;
+      top:3px;left:3px;transition:left .25s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+    .sw.on::after{left:19px}
+
+    /* ── PHONE SHELL ── */
+    .phone{width:393px;height:896px;background:#fff;display:flex;flex-direction:column;
+      position:relative;overflow:hidden}
+    .wm{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:50%;}
+    .phone>*:not(.wm){position:relative;z-index:1}
+
+    /* ── STATUS BAR ── */
+    .sb{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#fff}
+    .sb-t{font-size:13.5px;font-weight:700;color:#111;letter-spacing:.4px}
+    .sb-r{display:flex;align-items:center;gap:4px}
+    .sb-b{font-size:12px;font-weight:700;color:#111;}
+
+    /* ── APP HEADER ── */
+    .hdr{height:68px;display:flex;align-items:flex-end;justify-content:center;padding:0 18px 0px;position:relative}
+    .back{position:absolute;left:18px;width:32px;height:32px;display:flex;align-items:center;
+      justify-content:center;cursor:pointer}
+    .logo{width:100px;height:auto;display:block}
+
+    .dash{border:none;border-top:2.5px dashed #e9e9e9;margin:15px}
+    .content{flex:1;display:flex;flex-direction:column}
+
+    /* ── CHECK SECTION ── */
+    .chk-sec{display:flex;flex-direction:column;align-items:center;padding:20px 22px 14px}
+    .chk-img{width:90px;height:90px;display:block;margin-bottom:18px}
+    .tx-title{font-size:18px;font-weight:700;color:#1c4e77;margin-bottom:13px;letter-spacing:.1px}
+    .tx-date{font-size:13px;font-weight:550;color:#8f9093;margin-bottom:16px;letter-spacing:.1px}
+    .tx-amt{font-size:25px;font-weight:1000;color:#1c4e77;letter-spacing:0px}
+
+    .thin{border:none;margin:0}
+
+    /* ── ROWS ── */
+    .rows{padding:0 22px}
+    .row{display:flex;justify-content:space-between;align-items:center;padding:17px 0;border-bottom:2px solid #f0f0f0}
+    .rl{font-size:13px;color:#6e7073;font-weight:550;max-width:50%;line-height:1.5;letter-spacing:0.5px;}
+    .rv{font-size:15.3px;color:#5b5b5b;font-weight:700;text-align:right;max-width:57%;letter-spacing:1.2px;}
+
+    /* ── LIHAT DETAIL ── */
+    .lihat{display:flex;align-items:center;justify-content:center;gap:4px;padding:16px 0 20px;
+      font-size:13px;font-weight:550;color:#0066ae;cursor:pointer}
+
+    .spacer{flex:1;min-height:16px}
+
+    /* ── EDITABLE HIGHLIGHT ── */
+    .editable{
+      border-bottom:1.5px dashed currentColor;
+      cursor:text;
+      border-radius:2px;
+    }
+    .editing-active .editable{
+      background:rgba(0,87,168,0.04);
+    }
+
+    /* ── INLINE INPUT ── */
+    .inline-input{
+      border:none;
+      outline:none;
+      font-family:'Roboto','Arial',sans-serif;
+      background:rgba(0,87,168,0.06);
+      border-bottom:2px solid #0057A8;
+      border-radius:3px 3px 0 0;
+      padding:1px 4px;
+      transition:background .15s;
+    }
+    /* semua varian ukuran */
+    .inp-time   {font-size:13.5px;font-weight:700;color:#111;width:52px;}
+    .inp-batt   {font-size:12px;font-weight:700;color:#111;width:38px;}
+    .inp-title  {font-size:18px;font-weight:700;color:#233D4D;text-align:center;width:200px;}
+    .inp-tgl    {font-size:11px;color:#8f9093;text-align:center;width:90px;}
+    .inp-wkt    {font-size:11px;color:#8f9093;text-align:center;width:75px;}
+    .inp-amt    {font-size:24px;font-weight:550;color:#1c4e77;text-align:center;width:260px;letter-spacing:1px;}
+    .inp-row    {font-size:14px;font-weight:550;color:#5b5b5b;text-align:right;width:160px;}
+    .inp-lihat  {font-size:13px;font-weight:500;color:#0066ae;text-align:center;width:90px;}
+    .inp-btn    {font-size:15px;font-weight:700;color:#fff;background:rgba(255,255,255,0.15);
+                 border-bottom:2px solid rgba(255,255,255,0.6);text-align:center;width:120px;}
+    .inp-rl     {font-size:13px;color:#9098A0;font-weight:400;width:140px;}
+
+    /* ── BOTTOM ── */
+    .btm{background:#fff;border-top:1px solid #ebebeb;padding:12px 20px 14px}
+    .fbtns{display:flex;align-items:center;gap:10px}
+    .btn-o{width:46px;height:46px;border-radius:50%;border:1.5px solid #d4dde8;background:#fff;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s}
+    .btn-o:hover{background:#f3f7fb}
+    .btn-o svg{width:19px;height:19px}
+    .btn-sel{flex:1;border:none;border-radius:28px;background:#0057A8;color:#fff;font-family:inherit;
+      font-size:15px;font-weight:700;height:46px;cursor:pointer;letter-spacing:.2px;
+      display:flex;align-items:center;justify-content:center;transition:opacity .15s;position:relative}
+    .btn-sel:hover{opacity:.9}
+
+    /* ── NAV ── */
+    .nav{height:50px;background:#fff;display:flex;justify-content:center;align-items:center;
+      gap:56px;border-top:1px solid #f2f2f2}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);
+      background:#333;color:#fff;font-size:12px;padding:7px 16px;border-radius:20px;
+      opacity:0;transition:all .3s;pointer-events:none;z-index:99999;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="tbar">
+  <span class="tl">✏️ Edit</span>
+  <button class="sw" id="sw" onclick="toggleEdit()"></button>
+</div>
+
+<!-- TOAST NOTIFIKASI -->
+<div class="toast" id="toast"></div>
+
+<div class="phone" id="phone">
+
+  <!-- WATERMARK -->
+  <div class="wm">
+    <img src="watermark.png" alt="" style="width:100%;height:100%;object-fit:cover;display:block"/>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="sb">
+    <span class="sb-t" id="val-time" data-type="time">00:57</span>
+    <div class="sb-r">
+      <!-- Sinyal BT -->
+      <svg width="12" height="12" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="#111" stroke-width="2"/>
+        <circle cx="12" cy="8.5" r="2.5" fill="#111"/>
+        <circle cx="7.8" cy="14" r="2.2" fill="#111"/>
+        <circle cx="16.2" cy="14" r="2.2" fill="#111"/>
+      </svg>
+      <!-- Sinyal seluler -->
+      <svg width="15" height="11" viewBox="0 0 15 11">
+        <rect x="0" y="7.5" width="3" height="3.5" rx=".8" fill="#111"/>
+        <rect x="4.3" y="5" width="3" height="6" rx=".8" fill="#111"/>
+        <rect x="8.6" y="2.5" width="3" height="8.5" rx=".8" fill="#111"/>
+        <rect x="12.9" y="0" width="2.8" height="11" rx=".8" fill="#111"/>
+      </svg>
+      <!-- WiFi -->
+      <svg width="16" height="12" viewBox="0 0 22 17" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round">
+        <path d="M1 5C5 1.5 8.5 0 11 0s6 1.5 10 5"/>
+        <path d="M3.5 8.5C6.5 6 8.8 5 11 5s4.5 1 7.5 3.5"/>
+        <path d="M6.5 12C8.2 10.5 9.6 9.8 11 9.8s2.8.7 4.5 2.2"/>
+        <circle cx="11" cy="16" r="1.5" fill="#111" stroke="none"/>
+      </svg>
+      <!-- Baterai -->
+      <svg width="25" height="12" viewBox="0 0 25 12">
+        <rect x=".7" y=".7" width="21" height="10.6" rx="2.2" fill="none" stroke="#111" stroke-width="1.4"/>
+        <rect x="2.1" y="2.1" width="16.5" height="7.8" rx="1.3" fill="#111"/>
+        <rect x="22.6" y="3.5" width="2.4" height="5" rx="1" fill="#111"/>
+      </svg>
+      <span class="sb-b" id="val-batt" data-type="batt">81%</span>
+    </div>
+  </div>
+
+  <!-- APP HEADER -->
+  <div class="hdr">
+    <div class="back">
+      <svg width="9" height="16" viewBox="0 0 9 16" fill="none" stroke="#0057A8" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="8 1 1 8 8 15"/>
+      </svg>
+    </div>
+    <img class="logo" src="logo-bca.png" alt="BCA"/>
+  </div>
+
+  <hr class="dash"/>
+
+  <div class="content">
+    <!-- CHECK SECTION -->
+    <div class="chk-sec">
+      <img class="chk-img" src="check.png" alt="✓"/>
+      <div class="tx-title" id="val-title" data-type="title">Transfer Berhasil</div>
+      <div class="tx-date">
+        <span id="val-tgl" data-type="tgl">16 Mei 2026</span>&nbsp;
+        <span id="val-wkt" data-type="wkt">00:53:20</span>
+      </div>
+      <div class="tx-amt" id="val-nominal" data-type="amt">IDR 40,000,000.00</div>
+    </div>
+
+    <hr class="thin"/>
+
+    <!-- ROWS -->
+    <div class="rows">
+
+      <div class="row">
+        <span class="rl" id="lbl-nama" data-type="rl">Nama Penerima</span>
+        <span class="rv" id="val-nama" data-type="row">HOKIJITU</span>
+      </div>
+
+      <div class="row">
+        <span class="rl" id="lbl-bank" data-type="rl">Bank Tujuan</span>
+        <span class="rv" id="val-bank" data-type="row">BANK HOKI</span>
+      </div>
+
+      <div class="row">
+        <span class="rl" id="lbl-rek" data-type="rl">No. Rekening Tujuan</span>
+        <span class="rv" id="val-rek" data-type="row">1234 - 5678 - 9101</span>
+      </div>
+
+    </div>
+
+    <!-- LIHAT DETAIL -->
+    <div class="lihat">
+      <span id="val-lihat" data-type="lihat">Lihat Detail</span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0066ae" stroke-width="2.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+
+    <div class="spacer"></div>
+  </div>
+
+  <!-- BOTTOM BUTTONS -->
+  <div class="btm">
+    <div class="fbtns">
+      <button class="btn-o" title="Bagikan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0057A8" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </button>
+      <button class="btn-o" title="Unduh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0057A8" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </button>
+      <!-- Tombol Selesai juga bisa diedit -->
+      <button class="btn-sel">
+        <span id="val-sel" data-type="btn">Selesai</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- NAV BAR -->
+  <div class="nav">
+    <svg width="18" height="14" viewBox="0 0 18 14">
+      <rect x="0" y="0" width="3.5" height="14" rx="1.75" fill="#666"/>
+      <rect x="7" y="0" width="3.5" height="14" rx="1.75" fill="#666"/>
+      <rect x="14" y="0" width="3.5" height="14" rx="1.75" fill="#666"/>
+    </svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+      <circle cx="12" cy="12" r="9.5"/>
+    </svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.2"
+         stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+// ─────────────────────────────────────────────
+//  State & config
+// ─────────────────────────────────────────────
+let eMode = false;
+
+// Semua ID elemen yang bisa diedit beserta kelas input-nya
+const EDITABLES = [
+  // Status bar
+  { id: 'val-time',    cls: 'inp-time'  },
+  { id: 'val-batt',    cls: 'inp-batt'  },
+  // Judul & tanggal
+  { id: 'val-title',   cls: 'inp-title' },
+  { id: 'val-tgl',     cls: 'inp-tgl'   },
+  { id: 'val-wkt',     cls: 'inp-wkt'   },
+  // Nominal
+  { id: 'val-nominal', cls: 'inp-amt'   },
+  // Label kiri (bisa ubah nama kolom)
+  { id: 'lbl-nama',    cls: 'inp-rl'    },
+  { id: 'lbl-bank',    cls: 'inp-rl'    },
+  { id: 'lbl-rek',     cls: 'inp-rl'    },
+  // Nilai kanan
+  { id: 'val-nama',    cls: 'inp-row'   },
+  { id: 'val-bank',    cls: 'inp-row'   },
+  { id: 'val-rek',     cls: 'inp-row'   },
+  // Lihat detail & tombol
+  { id: 'val-lihat',   cls: 'inp-lihat' },
+  { id: 'val-sel',     cls: 'inp-btn'   },
+];
+
+// ─────────────────────────────────────────────
+//  Toggle mode edit
+// ─────────────────────────────────────────────
+function toggleEdit() {
+  eMode = !eMode;
+  document.getElementById('sw').classList.toggle('on', eMode);
+  document.getElementById('phone').classList.toggle('editing-active', eMode);
+
+  EDITABLES.forEach(({ id }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    if (eMode) {
+      el.classList.add('editable');
+      el.style.cursor = 'text';
+      el.onclick = () => startEdit(el);
+    } else {
+      // Jika masih ada input aktif, selesaikan dulu
+      const inp = el.querySelector('input');
+      if (inp) finishEdit(el, inp);
+
+      el.classList.remove('editable');
+      el.style.cursor = '';
+      el.onclick = null;
+    }
+  });
+
+  showToast(eMode ? '✏️ Mode edit aktif — klik teks untuk ubah' : '✅ Mode edit nonaktif');
+}
+
+// ─────────────────────────────────────────────
+//  Mulai edit satu elemen
+// ─────────────────────────────────────────────
+function startEdit(el) {
+  if (!eMode) return;
+  if (el.querySelector('input')) return; // sudah ada input
+
+  const cfg = EDITABLES.find(e => e.id === el.id);
+  const cur = el.textContent.trim();
+
+  const inp = document.createElement('input');
+  inp.value  = cur;
+  inp.className = 'inline-input ' + (cfg ? cfg.cls : '');
+
+  // Kosongkan elemen, masukkan input
+  el.textContent = '';
+  el.appendChild(inp);
+  inp.focus();
+  inp.select();
+
+  // Selesai saat blur / Enter / Escape
+  inp.addEventListener('blur',    () => finishEdit(el, inp, cur));
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
+    if (e.key === 'Escape') { inp.value = cur; inp.blur(); }
+  });
+}
+
+// ─────────────────────────────────────────────
+//  Selesai edit — simpan nilai baru
+// ─────────────────────────────────────────────
+function finishEdit(el, inp, fallback) {
+  const val = inp.value.trim() || (fallback ?? inp.value);
+  el.textContent = val;
+  if (eMode) el.classList.add('editable');
+}
+
+// ─────────────────────────────────────────────
+//  Toast notifikasi kecil
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
